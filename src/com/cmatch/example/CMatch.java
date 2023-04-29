@@ -3,10 +3,11 @@ package com.cmatch.example;
 import java.util.Vector;
 
 public class CMatch {
-	public int cofoundersNum;													// The Number of the Co-founders
-	public int traitsNum;														// The Number of the Traits									
-	public Vector<Integer> cofounders;											// Co-founders
-	public int selectedCofounders; 												// Selected Co-founders
+	private int cofoundersNum;				// The Number of the Co-founders
+	private int traitsNum;					// The Number of the Traits									
+	private Vector<Integer> cofounders;		// Co-founders
+	private int selectedCofounders; 		// Selected Co-founders
+	private Vector<Boolean> isStart;        // If is first co-founder selected
 	
 	// Constructor
 	public CMatch(int nCofoundersNum, int nTraitsNum) {
@@ -14,17 +15,28 @@ public class CMatch {
 		traitsNum = nTraitsNum;
 		cofounders = new Vector<Integer>();
 		selectedCofounders = 0;
+		isStart = new Vector<Boolean>();
+		
+		for(int i = 0; i < cofoundersNum; i ++) {
+			isStart.add(false);
+		}
 	}
 	
 	// Copy Constructor
 	public CMatch(Vector<Integer> vCofounders, int nTraitsNum) {
-		cofounders = new Vector<Integer>();
 		cofoundersNum = vCofounders.size();
 		traitsNum = nTraitsNum;
+		cofounders = new Vector<Integer>();
+		selectedCofounders = 0;
+		isStart = new Vector<Boolean>();
 		
 		for(int i = 0; i < cofoundersNum; i ++) {
 			cofounders.add(decToBin(vCofounders.elementAt(i)));
 			System.out.println(i + 1 + " Cofounder:" + vCofounders.elementAt(i)); 
+		}
+		
+		for(int i = 0; i < cofoundersNum; i ++) {
+			isStart.add(false);
 		}
 	}
 	
@@ -50,7 +62,7 @@ public class CMatch {
 	// Get the Number of the Covered Traits of Selected Co-founders
 	public int getCoveredTraitsNum(int cofoundersIndice) {
 		int totalTraitsNum = 0;
-		int tmp = 0;
+		int tmp = 0; 
 		
 		for(int i = 0 ; i < cofoundersNum; i ++) {
 			if(((cofoundersIndice & (1 << i)) >> i) == 1) {
@@ -70,29 +82,61 @@ public class CMatch {
 		int iterators = 0;
 		int selectedCofounderIndex = -1;
 		int currentCoveredTraitsNum = 0;
+		int firstCofounderIndexWithMaxTraits = selectNextCofounder(0);
+		int maxTraitsNum = 0;
+		int selectedCofoundersNum = cofoundersNum;
+		Vector<Integer> cofoundersIndexWithMaxTraits = new Vector<Integer>();
 		
-		while(true) {
-			if(iterators == traitsNum) break;
-			
-			currentCoveredTraitsNum = getCoveredTraitsNum(selectedCofounders);
-			if(currentCoveredTraitsNum >= traitsNum) break;
-			
-			selectedCofounderIndex = selectNextCofounder();
-			selectedCofounders |= 1 << selectedCofounderIndex;
-			
-			iterators ++;
+		for(int i = 0 ; i < traitsNum; i ++) {
+			maxTraitsNum += (cofounders.elementAt(firstCofounderIndexWithMaxTraits) & (1 << i)) >> i;
 		}
+		
+		for(int i = 0; i < cofoundersNum; i ++) {
+			int iTraitsNum = 0;
+			
+			for(int j = 0 ; j < traitsNum; j ++) {
+				iTraitsNum += (cofounders.elementAt(i) & (1 << j)) >> j;
+			}
+			
+			if(iTraitsNum == maxTraitsNum) {
+				cofoundersIndexWithMaxTraits.add(i);
+			}
+		}
+		
+		for(int i = 0; i < cofoundersIndexWithMaxTraits.size(); i ++) {
+			int tmpSelectedCofoundersNum = 1;
+			int tmpSelectedCofounders = 1 << cofoundersIndexWithMaxTraits.elementAt(i);
+			
+			while(true) {
+				if(iterators == traitsNum) break;
+				
+				currentCoveredTraitsNum = getCoveredTraitsNum(tmpSelectedCofounders);
+				if(currentCoveredTraitsNum >= traitsNum) break;
+				
+				if(selectedCofounderIndex != selectNextCofounder(tmpSelectedCofounders)) {
+					tmpSelectedCofounders |= 1 << selectNextCofounder(tmpSelectedCofounders);
+					tmpSelectedCofoundersNum ++;
+				}
+				
+				iterators ++;
+			}
+			
+			if(selectedCofoundersNum >= tmpSelectedCofoundersNum) {
+				selectedCofoundersNum = tmpSelectedCofoundersNum;
+				selectedCofounders = tmpSelectedCofounders;
+			}
+		}	
 	}
 	
 	// Select the Next Co-founder
-	public int selectNextCofounder() {
+	private int selectNextCofounder(int nSelectedCofounders) {
 		int selectedCofounderIndex = 0;
 		int tmpCoveredTraitsNum = 0;
 		int tmpSelectedCofounders = 0;
-		int currentCoveredTraitsNum = getCoveredTraitsNum(tmpSelectedCofounders);
+		int currentCoveredTraitsNum = 0;
 		
 		for(int i = 0; i < cofoundersNum; i ++) {
-			tmpSelectedCofounders = selectedCofounders | (1 << i);
+			tmpSelectedCofounders = nSelectedCofounders | (1 << i);
 			tmpCoveredTraitsNum = getCoveredTraitsNum(tmpSelectedCofounders);
 			
 			if(tmpCoveredTraitsNum > currentCoveredTraitsNum) {
@@ -105,7 +149,7 @@ public class CMatch {
 	}
 	
 	// Convert to Binary
-	public int decToBin(int decimal) {
+	private int decToBin(int decimal) {
 		int digit = 0;
 		int binary = 0;
 		
@@ -127,6 +171,4 @@ public class CMatch {
 			System.out.print((selectedCofounders & (1 << i)) >> i); 
 		}
 	}
-	
-	
 }

@@ -9,7 +9,7 @@ public class CMatchTest {
 
 	public static void main(String[] args) throws IOException {
 		
-		System.out.println("Please input co-founders...");
+		System.out.println("Please input co-founders(e.g. 123)...");
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String argu = reader.readLine();
