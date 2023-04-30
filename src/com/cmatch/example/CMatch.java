@@ -166,6 +166,7 @@ public class CMatch {
 	
 	// Output the Selected Co-founders
 	public void printOutput() {
+		System.out.println("");
 		System.out.print("Output:");
 		for(int i = 0; i < cofoundersNum; i ++) {
 			System.out.print((selectedCofounders & (1 << i)) >> i); 

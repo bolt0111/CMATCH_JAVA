@@ -19,9 +19,9 @@ public class CMatchTest {
 		
 		for(int i = 0; i < argus.length; i ++) {
 			cofounders.add(Integer.parseInt(argus[i]));
-			System.out.println(cofounders.elementAt(i));
 		}
 		
+		System.out.println("");
 		CMatch cmatch = new CMatch(cofounders, 5);
 		cmatch.selectCofounders();
 		cmatch.printOutput();
