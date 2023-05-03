@@ -79,7 +79,6 @@ public class CMatch {
 	
 	// Select Co-founders according to the Conditions of the problem
 	public void selectCofounders() {
-		int iterators = 0;
 		int selectedCofounderIndex = -1;
 		int currentCoveredTraitsNum = 0;
 		int firstCofounderIndexWithMaxTraits = selectNextCofounder(0);
@@ -106,6 +105,8 @@ public class CMatch {
 		for(int i = 0; i < cofoundersIndexWithMaxTraits.size(); i ++) {
 			int tmpSelectedCofoundersNum = 1;
 			int tmpSelectedCofounders = 1 << cofoundersIndexWithMaxTraits.elementAt(i);
+			int tmpSelectedCofounderIndex = -1;
+			int iterators = 0;
 			
 			while(true) {
 				if(iterators == traitsNum) break;
@@ -113,9 +114,12 @@ public class CMatch {
 				currentCoveredTraitsNum = getCoveredTraitsNum(tmpSelectedCofounders);
 				if(currentCoveredTraitsNum >= traitsNum) break;
 				
-				if(selectedCofounderIndex != selectNextCofounder(tmpSelectedCofounders)) {
-					tmpSelectedCofounders |= 1 << selectNextCofounder(tmpSelectedCofounders);
+				selectedCofounderIndex = selectNextCofounder(tmpSelectedCofounders);
+				
+				tmpSelectedCofounders |= 1 << selectNextCofounder(tmpSelectedCofounders);
+				if(tmpSelectedCofounderIndex != selectedCofounderIndex && selectedCofounderIndex != 0) {
 					tmpSelectedCofoundersNum ++;
+					tmpSelectedCofounderIndex = selectedCofounderIndex;
 				}
 				
 				iterators ++;
